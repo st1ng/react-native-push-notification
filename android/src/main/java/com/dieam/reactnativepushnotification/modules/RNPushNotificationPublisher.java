@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.security.SecureRandom;
 
@@ -26,6 +27,7 @@ public class RNPushNotificationPublisher extends BroadcastReceiver {
 
         Log.v(LOG_TAG, "onMessageReceived: " + bundle);
 
+
         handleLocalNotification(context, bundle);
     }
 
@@ -41,6 +43,23 @@ public class RNPushNotificationPublisher extends BroadcastReceiver {
         RNPushNotificationHelper pushNotificationHelper = new RNPushNotificationHelper(applicationContext);
         
         Log.v(LOG_TAG, "sendNotification: " + bundle);
+        try {
+            Log.v(LOG_TAG, "sendNotification side effect");
+            Object o = Class.forName("com.dieam.reactnativepushnotification.RNPushNotificationSideEffect").newInstance();
+            Log.v(LOG_TAG, "sendNotification side effect launch method");
+            Class.forName("com.dieam.reactnativepushnotification.RNPushNotificationSideEffect").getMethod("onNotificationReceived").invoke(o, context, bundle);
+            Log.v(LOG_TAG, "sendNotification side effect launch method done");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         pushNotificationHelper.sendToNotificationCentre(bundle);
     }
